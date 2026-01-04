@@ -1,0 +1,12 @@
+__pycache__/
+.venv/
+venv/
+evals/
+models/
+.cache/
+.chroma/
+vectordb/
+.DS_Store
+.idea/
+.vscode/
+data/
