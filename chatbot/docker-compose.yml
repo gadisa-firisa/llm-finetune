@@ -1,0 +1,24 @@
+services:
+  qdrant:
+    image: qdrant/qdrant:latest
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+  app:
+    build:
+      context: ../..
+      dockerfile: llm-finetune/chatbot/Dockerfile
+    environment:
+      - VECTOR_BACKEND=qdrant
+      - QDRANT_URL=http://qdrant:6333
+      - BASE_MODEL=Qwen/Qwen3-3B-Instruct
+      - ADAPTER=
+    ports:
+      - "8000:8000"
+    volumes:
+      - ../../llm-finetune/data/manuals:/app/llm-finetune/data/manuals
+      - ../../llm-finetune/models:/app/llm-finetune/models
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    depends_on:
+      - qdrant
+
