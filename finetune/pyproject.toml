@@ -1,0 +1,54 @@
+[tool.llm_finetune]
+base = "Qwen/Qwen3-3B-Instruct"
+output_dir = "llm-finetune/models/{task}/lora"
+
+[tool.llm_finetune.training_arguments]
+max_length = 1536
+per_device_train_batch_size = 2
+gradient_accumulation_steps = 16
+learning_rate = 2e-5
+num_train_epochs = 1
+logging_steps = 10
+save_steps = 200
+bf16 = true
+lr_scheduler_type = "cosine"
+warmup_ratio = 0.1
+report_to = []
+sample = 0
+optim = "paged_adamw_8bit"
+max_grad_norm = 1.0
+weight_decay = 0.01
+
+[tool.llm_finetune.lora]
+r = 8
+alpha = 16
+dropout = 0.1
+target_modules = ["q_proj", "k_proj", "v_proj", "o_proj"]
+
+[tool.llm_finetune.tasks.dialogue.training_arguments]
+sample = 20000
+max_length = 1536
+
+[tool.llm_finetune.tasks.summarization.training_arguments]
+sample = 0
+max_length = 1536
+
+[tool.llm_finetune.tasks.intent.training_arguments]
+sample = 0
+max_length = 1024
+
+[project]
+name = "llm-finetune-train"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+  "torch>=2.3.0",
+  "transformers>=4.44.0",
+  "datasets>=2.18.0",
+  "accelerate>=0.33.0",
+  "peft>=0.12.0",
+  "trl>=0.9.6",
+  "bitsandbytes>=0.43.0",
+  "evaluate>=0.4.2",
+  "scikit-learn>=1.5.0",
+]
