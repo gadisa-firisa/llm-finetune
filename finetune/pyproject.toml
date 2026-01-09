@@ -1,5 +1,5 @@
 [tool.llm_finetune]
-base = "Qwen/Qwen3-3B-Instruct"
+model_id = "Qwen/Qwen3-3B-Instruct"
 output_dir = "llm-finetune/models/{task}/lora"
 
 [tool.llm_finetune.training_arguments]
