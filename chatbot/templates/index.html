@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RAG Chat</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f6f8fc;
+      --panel: #ffffff;
+      --panel-2: #f7f9fd;
+      --border: #d9e1ec;
+      --text: #172033;
+      --muted: #6b7280;
+      --accent: #5fd3c3;
+      --accent-2: #38b2a2;
+      --message-bot: #f2f5fa;
+      --message-user: linear-gradient(135deg, #5fd3c3 0%, #38b2a2 100%);
+      --shadow: 0 24px 70px rgba(20, 33, 61, 0.12);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(95, 211, 195, 0.16), transparent 30%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3f9 100%);
+      color: var(--text);
+    }
+
+    .demo-layout {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .panel.chat {
+      width: min(920px, 100%);
+      min-height: min(760px, calc(100vh - 48px));
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      backdrop-filter: blur(16px);
+    }
+
+    .panel.chat > header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 20px 22px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(247, 249, 253, 0.82);
+    }
+
+    .panel.chat > header h2 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+
+    .messages {
+      padding: 22px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      scroll-behavior: smooth;
+    }
+
+    .message {
+      max-width: min(78%, 680px);
+      padding: 14px 16px;
+      border-radius: 18px;
+      line-height: 1.55;
+      font-size: 15px;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .message.bot {
+      align-self: flex-start;
+      background: var(--message-bot);
+      border: 1px solid rgba(23, 32, 51, 0.06);
+      color: var(--text);
+      border-top-left-radius: 8px;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--message-user);
+      color: #ffffff;
+      font-weight: 600;
+      border-top-right-radius: 8px;
+    }
+
+    .composer {
+      padding: 18px 22px 22px;
+      border-top: 1px solid var(--border);
+      background: rgba(247, 249, 253, 0.84);
+    }
+
+    .composer-shell {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 12px;
+      align-items: end;
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: var(--panel-2);
+    }
+
+    #q {
+      width: 100%;
+      resize: none;
+      min-height: 52px;
+      max-height: 180px;
+      border: 0;
+      outline: 0;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 15px;
+      line-height: 1.5;
+      padding: 10px 12px;
+    }
+
+    #q::placeholder {
+      color: var(--muted);
+    }
+
+    .submit-btn {
+      width: 46px;
+      height: 46px;
+      border: 0;
+      border-radius: 14px;
+      display: inline-grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+      color: #ffffff;
+      cursor: pointer;
+      transition: transform 140ms ease, filter 140ms ease;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.04);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: wait;
+      transform: none;
+    }
+
+    .context-box {
+      margin-top: 12px;
+      display: none;
+      gap: 8px;
+    }
+
+    .context-box.visible {
+      display: grid;
+    }
+
+    .context-label {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .context-item {
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(95, 211, 195, 0.08);
+      border: 1px solid rgba(23, 32, 51, 0.06);
+      color: #445066;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    @media (max-width: 640px) {
+      .demo-layout {
+        padding: 12px;
+      }
+
+      .panel.chat {
+        min-height: calc(100vh - 24px);
+        border-radius: 18px;
+      }
+
+      .panel.chat > header,
+      .messages,
+      .composer {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .message {
+        max-width: 88%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="demo-layout">
+    <section class="panel chat">
+      <header>
+        <h2>Chat</h2>
+      </header>
+
+      <div id="messages" class="messages"></div>
+
+      <form id="chatForm" class="composer">
+        <div class="composer-shell">
+          <textarea id="q" placeholder="Ask anything..." required></textarea>
+          <button id="sendBtn" type="submit" class="submit-btn" aria-label="Send">
+            <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="12" y1="19" x2="12" y2="5"></line>
+              <polyline points="5 12 12 5 19 12"></polyline>
+            </svg>
+          </button>
+        </div>
+        <div id="contexts" class="context-box"></div>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("q");
+    const sendBtn = document.getElementById("sendBtn");
+    const messages = document.getElementById("messages");
+    const contexts = document.getElementById("contexts");
+
+    function appendMessage(role, text) {
+      const node = document.createElement("div");
+      node.className = `message ${role}`;
+      node.textContent = text;
+      messages.appendChild(node);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    function renderContexts(items) {
+      if (!items || !items.length) {
+        contexts.className = "context-box";
+        contexts.innerHTML = "";
+        return;
+      }
+
+      const html = items
+        .map((item) => `<div class="context-item">${item}</div>`)
+        .join("");
+
+      contexts.className = "context-box visible";
+      contexts.innerHTML = `<div class="context-label">Retrieved Context</div>${html}`;
+    }
+
+    async function ask() {
+      const query = input.value.trim();
+      if (!query) return;
+
+      appendMessage("user", query);
+      input.value = "";
+      sendBtn.disabled = true;
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query })
+        });
+        const payload = await response.json();
+        appendMessage("bot", payload.answer || "");
+        renderContexts(payload.contexts || []);
+      } catch (error) {
+        appendMessage("bot", "The server could not process the request.");
+        renderContexts([]);
+      } finally {
+        sendBtn.disabled = false;
+        input.focus();
+      }
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await ask();
+    });
+
+    input.addEventListener("keydown", async (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        await ask();
+      }
+    });
+  </script>
+</body>
+</html>

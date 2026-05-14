@@ -1,7 +1,8 @@
 import os
+from pathlib import Path
 from typing import List
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import JSONResponse
 import sys
 sys.path.append(os.path.dirname(__file__))
 from .model import ChatModel
@@ -27,7 +28,7 @@ chat_model = None
 embedder = None
 store = None
 
-templates = Jinja2Templates(directory="templates")
+templates = Jinja2Templates(directory=str(Path(__file__).resolve().parent / "templates"))
 
 @app.on_event("startup")
 def startup():
@@ -62,4 +63,4 @@ async def chat(req: Request):
 
 
 if __name__ == "__main__":
-    uvicorn.run("app:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), reload=False)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), reload=False)

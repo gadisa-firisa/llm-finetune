@@ -5,7 +5,7 @@ This repository contains a small end-to-end chat-style llm fine-tuning, evaluati
 ### Fine-tuning Tasks and Datasets
 - **Dialogue generation:** continue a dialogue from the first user turn, with [DailyDialog](https://huggingface.co/datasets/roskoN/dailydialog) dataset.
 - **Dialogue summarization:** summarize a full chat transcript, using [SAMSum](https://huggingface.co/datasets/knkarthick/samsum) dataset.
-- **Intent classification:**  classify banking text queries into different intents, using [Banking77](https://huggingface.co/datasets/PolyAI/banking77) dataset.
+- **Intent classification:**  classify banking text queries into different intents, using [Banking77](https://huggingface.co/datasets/mteb/banking77) dataset.
 
 ### Model & Stack
 - **Base model:** [Qwen2.5-0.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct).
